@@ -27,20 +27,24 @@ def location_clean():
     for location in locations:
         temp_df = pd.read_csv(location)
         dfloc = pd.concat([dfloc, temp_df], sort=False)
-    dfloc['BEGIN_MONTH'] = dfloc['YEAR_MONTH']%100
-    dfloc['BEGIN_YEAR'] = (dfloc['YEAR_MONTH']/100).astype(int)
-    dfloc = dfloc.drop(columns = ['YEAR_MONTH', 'LAT2', 'LON2', 'LOCATION', 'RANGE'])
+    print(dfloc['YEARMONTH'].describe())
+    dfloc['BEGIN_MONTH'] = dfloc['YEARMONTH']%100
+    dfloc['BEGIN_YEAR'] = (dfloc['YEARMONTH']/100).astype(float)
+    print(dfloc['BEGIN_YEAR'])
+    dfloc = dfloc.drop(columns = ['YEARMONTH', 'LAT2', 'LON2', 'LOCATION', 'RANGE', 'AZIMUTH'])
+    return dfloc
 
-# dfloc = location_clean()
-# with open('locs.csv', 'w') as csv_file:
-#     dfloc.to_csv(path_or_buf=csv_file)
+dfLocFinal = location_clean()
+print(dfLocFinal)
+with open('locs.csv', 'w') as csv_file:
+    dfLocFinal.to_csv(path_or_buf=csv_file)
 
 def fatalities_clean():
     # Basic cleaning process for Locations Data
     dffat = pd.read_csv('fatalities2000.csv')
     fatilities = ['fatalities2001.csv', 'fatalities2002.csv', 'fatalities2003.csv', 'fatalities2004.csv', 'fatalities2005.csv', 'fatalities2006.csv', 'fatalities2007.csv', 'fatalities2008.csv', 'fatalities2009.csv','fatalities2010.csv','fatalities2011.csv','fatalities2012.csv','fatalities2013.csv','fatalities2014.csv','fatalities2015.csv','fatalities2016.csv','fatalities2017.csv','fatalities2018.csv','fatalities2019.csv','fatalities2020.csv','fatalities2021.csv','fatalities2022.csv']
     for fat in fatilities:
-        temp_df = pd.read_csv(location)
+        temp_df = pd.read_csv(fat)
         dffat = pd.concat([dffat, temp_df], sort=False)
     dffat['BEGIN_MONTH'] = dffat['EVENT_YEARMONTH']%100
     dffat['BEGIN_YEAR'] = (dffat['EVENT_YEARMONTH']/100).astype(int)

@@ -1,0 +1,109 @@
+---
+title: "Storm Stoppers"
+subtitle: "Sneha Jaikumar, Peyton Lindogan, Dheya Madhani, Shefali Pai"
+output: html_document
+date: "2022-10-08"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+library(ggplot2)
+library(gganimate)
+library(plotly)
+set.seed(1)
+```
+
+Introduction:
+
+According to the storm data on the United States of America from NOAA, in 2021 978 people were killed directly and indirectly by storms. There are many different types of storms that can occur, such as tornados, thunderstorms, hail, wind, and more. While these are only a few of the storms that can impact people, they can still have devastating effects for communities and can cause deaths and injuries. These storms happen all year round and can be more prevalent based on location. The location can also impact the type of storm hitting the area. Using the NOAA dataset from the U.S., we wanted to analyze whether we could predict future storms based on the region they appear in. Based on the trends presented based on the type of storm that occurred, the latitude and longitude, and how many deaths that occurred, we can work to see when these storms will most likely occur as well as where. We are also interested in predicting how many deaths/injuries can occur based on these storms that occur.  
+
+
+```{r}
+#Loading in the details file after performing data cleaning in VScode
+details <- read.csv("details.csv")
+```
+
+Assumptions used in Data Cleaning:
+
+We cleaned our data using Python. When cleaning the data, we had to assume several conditions that would allow us to remove specific columns. Within the location data, we assumed several variables would not be necessary for our analysis. We assumed that columns relating to location outside of latitude and longitude, and specific region should be removed as they all conveyed similar or the same information. When working with the fatalities dataset, it was mostly good but we removed several of the additional dates included. The details dataset had the most information and required the most work. We had to requantify the property damage column and ensure all of the values had the same units. Additionally, we removed several other overlapping variables that were present in other datasets. Once the cleaning was complete, we joined all three datasets by the event identification number. 
+
+# Create plots 
+```{r}
+# Examine deaths over time
+details$DEATHS_INDIRECT <- as.numeric(details$DEATHS_INDIRECT)
+details$DEATHS_DIRECT <- as.numeric(details$DEATHS_DIRECT)
+details$deaths <- details$DEATHS_INDIRECT + details$DEATHS_DIRECT
+
+summary(details$deaths)
+de <- ggplot(details, aes(x=deaths, y=MONTH_NAME, color=EVENT_TYPE)) + ggtitle("Deaths Over Time")+ geom_point() + labs(x="Total Injuries")
+de <- ggplotly(de)
+de
+```
+
+```{r}
+# Examine injuries over time
+details$INJURIES_DIRECT <- as.numeric(details$INJURIES_DIRECT)
+details$INJURIES_INDIRECT <- as.numeric(details$INJURIES_INDIRECT)
+details$TOTAL_INJ <- details$INJURIES_INDIRECT + details$INJURIES_DIRECT
+summary(details$TOTAL_INJ)
+inj <- ggplot(details, aes(x=TOTAL_INJ, y=MONTH_NAME, color=EVENT_TYPE )) + ggtitle("Injuries Over Time") + geom_point() + labs(x="Total Injuries")
+inj <- ggplotly(inj)
+inj
+```
+
+
+
+Methodology:
+
+In analyzing our data, we moved over to R Studio. In our analysis, we followed multiple approaches. In order to begin working with our variables we conducted an exploratory data analysis. 
+
+
+```{r}
+#mod1 looks at whether the month a storm started could be predicted by state, year, and d# of eaths
+mod1 = lm(BEGIN_MONTH ~ STATE + YEAR + deaths, details)
+summary(mod1)
+```
+
+```{r}
+#We used forward selection to identify the degree of correlations between variables, specifically between deaths and year, state, event.
+Full = lm(BEGIN_MONTH~ YEAR + STATE + deaths + EVENT_TYPE, data = details)
+MSE = (summary(Full)$sigma)^2
+
+step(Full, scale=MSE)
+none = lm(BEGIN_MONTH~1, data=details)
+
+step(none, scope=list(upper=Full), scale=MSE, direction="forward")
+```
+
+```{r}
+#mod3 tries to predict the month a storm may have started based on year, event, and state
+mod3 = lm(BEGIN_MONTH ~ EVENT_TYPE + STATE + YEAR, data = details)
+summary(mod3)
+```
+
+
+
+```{r}
+#mod4 looks at the number of deaths based on month, year, event, and state
+mod4 = lm(deaths~BEGIN_MONTH + YEAR + EVENT_TYPE + STATE, data = details)
+MSE = (summary(mod4)$sigma)^2
+
+step(mod4, scale=MSE)
+none = lm(deaths~1, data=details)
+
+step(none, scope=list(upper=mod4), scale=MSE, direction="forward")
+```
+
+From there we attempted a linear regression to see if there were relationships among variables in predicting months, or deaths using years, months, deaths, and event types. We used forward selection to select our variables. Forward selection picks one predictive variable, tests its predictive power and if it’s accurate, keeps the variable and moves onto the next term. It continues that trend until all the variables are attempted for fit.  From that analysis, we found the most correlation between predicting deaths through using the month and year. Our analysis said that no predictive variables should be used in predicting month specifically. When testing the linearity conditions of our model for predicting deaths, we see that linearity, zero mean, independence and constant variance. It should be noted that normality has some left skew but is otherwise well fit to a normal distribution. Although we found correlation between deaths and these other variables, we cannot say that there is causation as there may be other variables that are not within the dataset to cause deaths not noted here. 
+
+In addition to the modeling, we wanted to visualize some of the trends we noticed. We took our dataset and created an interactive element in PowerBI. We wanted to see what sort of trends could be drawn out from a more friendly visualization software. In our building of the visualizations we found 
+
+[PowerBI Dashboard](https://app.powerbi.com/links/rEz4CZhwdW?ctid=58b3d54f-16c9-42d3-af08-1fcabd095666&pbi_source=linkShare)
+
+Challenges:
+
+We faced two challenges in working with our dataset. The first was a lack of accurate documentation regarding the variables in the datasets. The second was the separation of the data into three different types of documentation. Oftentimes, this documentation had variables that were overlapping or somewhat contradictory to one another. 
+

@@ -1,5 +1,4 @@
-# CDC 2022 Health Sciences Track: Issues of Concern for COP27
-Storm Stoppers
+#Storm Stoppers
 
 Introduction:
 According to the storm data on the United States of America from NOAA, in 2021 978 people were killed directly and indirectly by storms. There are many different types of storms that can occur, such as tornados, thunderstorms, hail, wind, and more. While these are only a few of the storms that can impact people, they can still have devastating effects for communities and can cause deaths and injuries. These storms happen all year round and can be more prevalent based on location. The location can also impact the type of storm hitting the area. Using the NOAA dataset from the U.S., we wanted to analyze whether we could predict future storms based on the region they appear in. Based on the trends presented based on the type of storm that occurred, the latitude and longitude, and how many deaths that occurred, we can work to see when these storms will most likely occur as well as where. We are also interested in predicting how many deaths/injuries can occur based on these storms that occur.  
